@@ -24,8 +24,8 @@ app.post('/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email,
-      success_url: 'https://yourdomain.com/success',
-      cancel_url: 'https://yourdomain.com/cancel',
+      success_url: 'https://theoaka.com/#success',
+      cancel_url: 'https://theoaka.com/#cancel',
       metadata: {
         artist_song,
         collaborators,
