@@ -1,9 +1,37 @@
 const express = require('express');
 const app = express();
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Loaded from Render
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const cors = require('cors');
 
 app.use(cors());
+
+// ⚠️ Webhook MUST use raw body — must come BEFORE express.json()
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook signature error:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+
+    // Forward to Google Apps Script
+    const gasUrl = process.env.GAS_WEBHOOK_URL;
+    await fetch(gasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
+    });
+  }
+
+  res.json({ received: true });
+});
+
 app.use(express.json());
 
 app.post('/create-checkout-session', async (req, res) => {
@@ -40,4 +68,6 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-app.listen(4242, () => console.log('Server is running on port 4242'));
+// ✅ Fixed: use Render's dynamic port
+const PORT = process.env.PORT || 4242;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
