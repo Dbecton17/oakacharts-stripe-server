@@ -90,5 +90,32 @@ app.get('/magazines', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch magazines' });
   }
 });
+// ── Webflow Upcoming Events ──
+app.get('/events', async (req, res) => {
+  try {
+    const collectionId = '68c6428508a0af94ec56129c';
+    const token = process.env.WEBFLOW_API_TOKEN;
+    const response = await fetch(
+      `https://api.webflow.com/v2/collections/${collectionId}/items?live=true`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': 'application/json'
+        }
+      }
+    );
+    const data = await response.json();
+    const events = (data.items || []).map(item => ({
+  name: item.fieldData['name'] || '',
+  cover: item.fieldData['thumbnail']?.url || '',
+  date: item.fieldData['event-date'] || '',
+  url: item.fieldData['buy-ticket-link'] || `https://www.theoaka.com/events/${item.fieldData['slug']}`
+}));
+    res.json({ events });
+  } catch (err) {
+    console.error('Events fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch events' });
+  }
+});
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
