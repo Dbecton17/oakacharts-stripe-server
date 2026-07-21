@@ -38,7 +38,10 @@ app.post('/create-checkout-session', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
-      automatic_payment_methods: { enabled: true },
+      automatic_payment_methods: { 
+  enabled: true,
+  allow_redirects: 'always' // or 'never' if you want to exclude redirect-based methods like Cash App Pay
+},
       line_items: [{
         price_data: {
           currency: 'usd',
