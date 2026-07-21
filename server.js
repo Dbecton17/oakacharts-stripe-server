@@ -32,11 +32,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
 app.use(express.json());
 
-// ── Stripe Checkout ──
+// ── Stripe Checkout (Embedded) ──
 app.post('/create-checkout-session', async (req, res) => {
   const { artist_song, collaborators, link, email } = req.body;
   try {
     const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
@@ -48,14 +49,27 @@ app.post('/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email,
-      success_url: 'https://theoaka.com/#success',
-      cancel_url: 'https://theoaka.com/#cancel',
+      return_url: 'https://theoaka.com/return?session_id={CHECKOUT_SESSION_ID}',
       metadata: { artist_song, collaborators, link }
     });
-    res.json({ sessionId: session.id });
+    res.json({ clientSecret: session.client_secret });
   } catch (error) {
     console.error('Stripe Error:', error);
     res.status(500).json({ error: 'Failed to create session' });
+  }
+});
+
+// ── Session Status (for confirming payment on return) ──
+app.get('/session-status', async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+    res.json({
+      status: session.status,
+      email: session.customer_details?.email
+    });
+  } catch (err) {
+    console.error('Session status error:', err);
+    res.status(500).json({ error: 'Failed to retrieve session' });
   }
 });
 
