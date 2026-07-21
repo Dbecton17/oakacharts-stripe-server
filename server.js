@@ -38,10 +38,6 @@ app.post('/create-checkout-session', async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
-      automatic_payment_methods: { 
-  enabled: true,
-  allow_redirects: 'always' // or 'never' if you want to exclude redirect-based methods like Cash App Pay
-},
       line_items: [{
         price_data: {
           currency: 'usd',
@@ -52,7 +48,7 @@ app.post('/create-checkout-session', async (req, res) => {
       }],
       mode: 'payment',
       customer_email: email,
-      return_url: 'https://theoaka.com/return?session_id={CHECKOUT_SESSION_ID}',
+      return_url: 'https://www.theoaka.com/heatcheck-top-20?session_id={CHECKOUT_SESSION_ID}',
       metadata: { artist_song, collaborators, link }
     });
     res.json({ clientSecret: session.client_secret });
