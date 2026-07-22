@@ -148,15 +148,9 @@ app.get('/concert-reviews', async (req, res) => {
       }
     );
     const data = await response.json();
-    const reviews = (data.items || []).map(item => ({
-      title: item.fieldData['name'] || item.fieldData['title'] || '',
-      image: item.fieldData['lead-image']?.url || '',
-      slug: item.fieldData['slug'] || '',
-      url: `https://www.theoaka.com/concert-reviews/${item.fieldData['slug']}`
-    }));
-    res.json({ reviews });
+    // TEMPORARY: dump raw fieldData to see exact keys
+    res.json({ raw: data.items?.[0]?.fieldData });
   } catch (err) {
-    console.error('Concert reviews fetch error:', err);
     res.status(500).json({ error: 'Failed to fetch concert reviews' });
   }
 });
