@@ -152,7 +152,7 @@ app.get('/concert-reviews', async (req, res) => {
       title: item.fieldData['name'] || '',
       image: item.fieldData['thumbnail']?.url || '',
       slug: item.fieldData['slug'] || '',
-      url: `https://www.theoaka.com/concert-reviews/${item.fieldData['slug']}`
+      url: `https://www.theoaka.com/concerts/${item.fieldData['slug']}`
     }));
     res.json({ reviews });
   } catch (err) {
