@@ -132,3 +132,31 @@ app.get('/events', async (req, res) => {
 });
 const PORT = process.env.PORT || 4242;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// ── Webflow Concert Reviews ──
+app.get('/concert-reviews', async (req, res) => {
+  try {
+    const collectionId = '6955604915fd0ba509a82e2a';
+    const token = process.env.WEBFLOW_API_TOKEN;
+    const response = await fetch(
+      `https://api.webflow.com/v2/collections/${collectionId}/items?live=true`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'accept': 'application/json'
+        }
+      }
+    );
+    const data = await response.json();
+    const reviews = (data.items || []).map(item => ({
+      title: item.fieldData['name'] || item.fieldData['title'] || '',
+      image: item.fieldData['lead-image']?.url || '',
+      slug: item.fieldData['slug'] || '',
+      url: `https://www.theoaka.com/concert-reviews/${item.fieldData['slug']}`
+    }));
+    res.json({ reviews });
+  } catch (err) {
+    console.error('Concert reviews fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch concert reviews' });
+  }
+});
