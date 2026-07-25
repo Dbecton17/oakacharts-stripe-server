@@ -125,6 +125,7 @@ app.get('/events', async (req, res) => {
   url: item.fieldData['buy-ticket-link'] || `https://www.theoaka.com/events/${item.fieldData['slug']}`,
   past: item.fieldData['past'] || false
 }));
+    console.log(JSON.stringify(data.items, null, 2));
     res.json({ events });
   } catch (err) {
     console.error('Events fetch error:', err);
