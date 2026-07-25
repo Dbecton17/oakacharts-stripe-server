@@ -122,7 +122,8 @@ app.get('/events', async (req, res) => {
   name: item.fieldData['name'] || '',
   cover: item.fieldData['thumbnail']?.url || '',
   date: item.fieldData['event-date'] || '',
-  url: item.fieldData['buy-ticket-link'] || `https://www.theoaka.com/events/${item.fieldData['slug']}`
+  url: item.fieldData['buy-ticket-link'] || `https://www.theoaka.com/events/${item.fieldData['slug']}`,
+  past: item.fieldData['past'] || false
 }));
     res.json({ events });
   } catch (err) {
